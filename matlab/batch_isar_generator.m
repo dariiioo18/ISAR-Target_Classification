@@ -1,4 +1,4 @@
-% GENERACION_AUTOMATIZADA_ISAR  Batch ISAR image generation from NewFASANT simulations.
+% BATCH_ISAR_GENERATOR  Batch ISAR image generation from NewFASANT simulations.
 %
 %   This script iterates over the dataset directory tree produced by
 %   NewFASANT electromagnetic simulations and generates ISAR images at
@@ -9,22 +9,30 @@
 %   Directory layout expected
 %   -------------------------
 %   datasets_root/
-%     ├── Caja/
-%     │     ├── Caja_x/
-%     │     │     └── result/
-%     │     │           ├── step0/RcsFieldRP.out
-%     │     │           ├── step1/RcsFieldRP.out
-%     │     │           └── ...
-%     │     └── Caja_y/ ...
-%     ├── Cilindro/ ...
-%     └── Cono/ ...
+%     +-- Caja/
+%     |     +-- Caja_x/
+%     |     |     +-- result/
+%     |     |           +-- step0/RcsFieldRP.out
+%     |     |           +-- step1/RcsFieldRP.out
+%     |     |           +-- ...
+%     |     +-- Caja_y/ ...
+%     +-- Cilindro/ ...
+%     +-- Cono/ ...
 %
-%   Author: Carlos Delgado
+%   Author: Dario del Saz
 
 %% ====================================================================
 %  Configuration
 %  ====================================================================
-datasets_root = 'C:/Users/UX425/Desktop/Simulaciones/DATASET';
+datasets_root = getenv('ISAR_DATASETS_ROOT');
+if isempty(datasets_root)
+    datasets_root = uigetdir(pwd, 'Select the root dataset directory');
+    if isequal(datasets_root, 0)
+        error('batch_isar_generator:noPath', ...
+              'No dataset directory selected. Set the ISAR_DATASETS_ROOT environment variable or choose a folder.');
+    end
+end
+
 num_steps     = 120;
 noise_levels  = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5];
 
@@ -36,7 +44,7 @@ main_classes = main_classes([main_classes.isdir] & ...
                ~ismember({main_classes.name}, {'.', '..'}));
 
 if isempty(main_classes)
-    error('generacion_automatizada:noClasses', ...
+    error('batch_isar_generator:noClasses', ...
           'No class directories found in %s.', datasets_root);
 end
 
@@ -64,7 +72,7 @@ for i = 1:length(main_classes)
 
         class_name    = sub_classes(j).name;
         output_folder = fullfile(sub_class_path, ...
-                        ['isar_imagenes_', lower(class_name), '_electro']);
+                        ['isar_images_', lower(class_name), '_electro']);
         if ~exist(output_folder, 'dir')
             mkdir(output_folder);
         end
@@ -84,7 +92,7 @@ for i = 1:length(main_classes)
             for sigma = noise_levels
                 try
                     fig = figure('Visible', 'off');
-                    postprocesado_isar(data_file, sigma, 'PlotResult', true);
+                    parse_newfasant(data_file, sigma, 'PlotResult', true);
 
                     if sigma == 0
                         img_name = sprintf('%s%d.png', class_name, k);

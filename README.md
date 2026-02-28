@@ -42,9 +42,9 @@ This project covers the **full pipeline** from raw electromagnetic simulation ou
 ```
 ISAR-Target-Classification/
 ├── matlab/
-│   ├── isar_fft.m                       # 2-D FFT ISAR imaging
-│   ├── postprocesado_isar.m             # NewFASANT output parser
-│   └── generacion_automatizada_isar.m   # Batch image generator
+│   ├── isar_fft.m                  # 2-D FFT ISAR imaging
+│   ├── parse_newfasant.m           # NewFASANT output parser
+│   └── batch_isar_generator.m      # Batch image generator
 ├── python/
 │   ├── config.py          # Hyperparameters and paths
 │   ├── data_loader.py     # Image loading and preprocessing
@@ -80,10 +80,20 @@ pip install -r requirements.txt
 
 ### 1. Generate ISAR images (MATLAB)
 
-If you have NewFASANT simulation outputs, open MATLAB, navigate to the `matlab/` folder, edit the `datasets_root` path in `generacion_automatizada_isar.m`, and run:
+If you have NewFASANT simulation outputs, set the `ISAR_DATASETS_ROOT` environment variable to your dataset path (or let the script prompt you with a folder picker), then run:
 
 ```matlab
-generacion_automatizada_isar
+batch_isar_generator
+```
+
+Alternatively, set the environment variable before launching MATLAB:
+
+```bash
+# Linux / macOS
+export ISAR_DATASETS_ROOT=/path/to/your/dataset
+
+# Windows (cmd)
+set ISAR_DATASETS_ROOT=C:\path\to\your\dataset
 ```
 
 This will create PNG images organised by class and noise level.
@@ -119,7 +129,7 @@ python main.py --data ../data --skip-cnn
 
 ## MATLAB Functions
 
-### `isar_fft(G, frecs, angulos)`
+### `isar_fft(G, freqs, angles)`
 
 Generates an ISAR image via 2-D FFT from a complex scattering matrix.
 
@@ -127,13 +137,13 @@ Generates an ISAR image via 2-D FFT from a complex scattering matrix.
 - `Nfft` — FFT zero-padding size (default: 32)
 - `PlotResult` — Display the surface plot (default: false)
 
-### `postprocesado_isar(filename, sigma)`
+### `parse_newfasant(filename, sigma)`
 
 Parses a NewFASANT `RcsFieldRP.out` file and produces an ISAR image with optional Gaussian noise.
 
-### `generacion_automatizada_isar`
+### `batch_isar_generator`
 
-Batch script that iterates over the full simulation dataset and generates ISAR images at multiple noise levels (σ = 0.0, 0.1, 0.2, 0.3, 0.4, 0.5).
+Batch script that iterates over the full simulation dataset and generates ISAR images at multiple noise levels (σ = 0.0, 0.1, 0.2, 0.3, 0.4, 0.5). The dataset path is configured via the `ISAR_DATASETS_ROOT` environment variable or selected interactively through a folder picker dialog.
 
 ---
 
@@ -148,8 +158,8 @@ To add robustness, each clean image is augmented with additive complex Gaussian 
 If you wish to generate your own dataset:
 
 1. Model the target geometries and run RCS simulations in **NewFASANT**.
-2. Configure the `datasets_root` path in `matlab/generacion_automatizada_isar.m`.
-3. Execute the script in MATLAB — it will produce all PNG images automatically.
+2. Set the `ISAR_DATASETS_ROOT` environment variable to point to your simulation output directory.
+3. Execute `batch_isar_generator` in MATLAB — it will produce all PNG images automatically.
 
 ---
 

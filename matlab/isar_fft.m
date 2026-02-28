@@ -1,15 +1,15 @@
-function [salida, ejexf, ejeyf] = isar_fft(G, frecs, angulos, varargin)
+function [image_out, cross_range_axis, range_axis] = isar_fft(G, freqs, angles, varargin)
 % ISAR_FFT  Generate an ISAR image from scattering data using 2-D FFT.
 %
-%   salida = ISAR_FFT(G, frecs, angulos)
-%   [salida, ejexf, ejeyf] = ISAR_FFT(G, frecs, angulos)
+%   image_out = ISAR_FFT(G, freqs, angles)
+%   [image_out, cross_range_axis, range_axis] = ISAR_FFT(G, freqs, angles)
 %   [...] = ISAR_FFT(..., 'Name', Value)
 %
 %   Inputs
 %   ------
-%   G       : Complex scattering matrix  [Nfrecs x Nangulos]
-%   frecs   : Frequency vector in Hz     [1 x Nfrecs]
-%   angulos : Angle vector in degrees    [Nangulos x 1] or [1 x Nangulos]
+%   G      : Complex scattering matrix  [Nfreqs x Nangles]
+%   freqs  : Frequency vector in Hz     [1 x Nfreqs]
+%   angles : Angle vector in degrees    [Nangles x 1] or [1 x Nangles]
 %
 %   Name-Value Parameters
 %   ---------------------
@@ -18,11 +18,11 @@ function [salida, ejexf, ejeyf] = isar_fft(G, frecs, angulos, varargin)
 %
 %   Outputs
 %   -------
-%   salida : ISAR image matrix (complex, FFT-shifted)
-%   ejexf  : Cross-range axis in metres
-%   ejeyf  : Range axis in metres
+%   image_out        : ISAR image matrix (complex, FFT-shifted)
+%   cross_range_axis : Cross-range axis in metres
+%   range_axis       : Range axis in metres
 %
-%   Author: Carlos Delgado
+%   Author: Dario del Saz
 
     % --- Parse optional arguments -------------------------------------------
     p = inputParser;
@@ -37,25 +37,25 @@ function [salida, ejexf, ejeyf] = isar_fft(G, frecs, angulos, varargin)
     c = 3e8;  % Speed of light (m/s)
 
     % --- Convert angles to radians ------------------------------------------
-    angulos_rad = angulos(:).' * pi / 180;
+    angles_rad = angles(:).' * pi / 180;
 
     % --- Centre frequency ---------------------------------------------------
-    f0 = (frecs(1) + frecs(end)) / 2;
+    f0 = (freqs(1) + freqs(end)) / 2;
 
     % --- 2-D FFT with zero-padding -----------------------------------------
-    salida = fftshift(fft2(G, Nfft, Nfft));
+    image_out = fftshift(fft2(G, Nfft, Nfft));
 
     % --- Build spatial axes -------------------------------------------------
-    deltaf = frecs(2) - frecs(1);
-    deltat = angulos_rad(2) - angulos_rad(1);
+    deltaf = freqs(2) - freqs(1);
+    deltat = angles_rad(2) - angles_rad(1);
 
-    ejeyf = linspace(-c / (4 * deltaf),  c / (4 * deltaf),  Nfft);   % Range
-    ejexf = linspace(-c / (4 * f0 * deltat), c / (4 * f0 * deltat), Nfft); % Cross-range
+    range_axis       = linspace(-c / (4 * deltaf),  c / (4 * deltaf),  Nfft);
+    cross_range_axis = linspace(-c / (4 * f0 * deltat), c / (4 * f0 * deltat), Nfft);
 
     % --- Optional visualisation ---------------------------------------------
     if PlotResult
         figure;
-        surf(ejexf, ejeyf, abs(salida) ./ max(abs(salida(:))));
+        surf(cross_range_axis, range_axis, abs(image_out) ./ max(abs(image_out(:))));
         colormap(gray);
         brighten(0.7);
         xlabel('Cross-range (m)');

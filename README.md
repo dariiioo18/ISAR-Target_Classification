@@ -46,15 +46,15 @@ ISAR-Target-Classification/
 │   ├── parse_newfasant.m           # NewFASANT output parser
 │   └── batch_isar_generator.m      # Batch image generator
 ├── python/
-│   ├── config.py          # Hyperparameters and paths
-│   ├── data_loader.py     # Image loading and preprocessing
-│   ├── ml_models.py       # SVM, Decision Tree, Random Forest, K-Means
-│   ├── cnn_model.py       # CNN definition and training
-│   ├── evaluation.py      # Metrics and visualisation
-│   └── main.py            # CLI entry point
+│   ├── config.py                   # Hyperparameters and paths
+│   ├── data_loader.py              # Image loading and preprocessing
+│   ├── ml_models.py                # SVM, Decision Tree, Random Forest, K-Means
+│   ├── cnn_model.py                # CNN definition and training
+│   ├── evaluation.py               # Metrics and visualisation
+│   └── main.py                     # CLI entry point
 ├── docs/
-│   └── isar_example.png   # Sample ISAR image for documentation
-├── data/                  # Place your ISAR images here (not tracked)
+│   └── isar_example.png            # Sample ISAR image for documentation
+├── data/                           # Output images
 ├── requirements.txt
 ├── LICENSE
 └── README.md
